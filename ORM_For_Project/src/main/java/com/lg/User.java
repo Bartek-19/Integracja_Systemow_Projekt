@@ -12,16 +12,15 @@ public class User {
     private long id;
     @Column(nullable = false, unique = true)
     private String login;
+    @Column(nullable = false)
+    private String password;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final List<Role> roles = new ArrayList<>();
 
     public User(String login, String password) {
         this.login = login;
         this.password = password;
     }
-
-    @Column(nullable = false)
-    private String password;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private final List<Role> roles = new ArrayList<>();
 
     public long getId() {
         return id;

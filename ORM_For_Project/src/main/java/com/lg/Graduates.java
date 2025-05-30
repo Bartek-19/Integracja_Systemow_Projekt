@@ -12,8 +12,8 @@ public class Graduates {
     @Column(nullable = false)
     private int number;
 
-    public Graduates(int rate, int year) {
-        this.number = rate;
+    public Graduates(int number, int year) {
+        this.number = number;
         this.year = year;
     }
 
