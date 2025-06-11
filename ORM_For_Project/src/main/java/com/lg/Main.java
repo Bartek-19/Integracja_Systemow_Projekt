@@ -1,8 +1,20 @@
 package com.lg;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,18 +34,50 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        final Path pathXML = Paths.get("C:","Users","barte","OneDrive","Pulpit","VI semestr","6.SE.2 Integracja systemów","Laboratorium","Integracja_Systemow_Projekt","DataFiles","GusData.xml");
+        final Path pathJSON = Paths.get("C:","Users","barte","OneDrive","Pulpit","VI semestr","6.SE.2 Integracja systemów","Laboratorium","Integracja_Systemow_Projekt","DataFiles","WorldBankData.json");
         List<Graduates> graduates = new ArrayList<>();
         List<Inflation> inflations = new ArrayList<>();
 
-        graduates.add(new Graduates(2000, 2024));
-        graduates.add(new Graduates(2100, 2023));
-        graduates.add(new Graduates(2300, 2022));
+        try {
+            File xmlFile = pathXML.toFile();
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
 
-        inflations.add(new Inflation(8.7F, 2024));
-        inflations.add(new Inflation(6.5F, 2023));
-        inflations.add(new Inflation(18.4F, 2022));
+            doc.getDocumentElement().normalize();
 
-        init_database_with_data(graduates, inflations);
+            NodeList nList = doc.getElementsByTagName("entry");
+
+            for (int i = 0; i < nList.getLength(); i++) {
+                Node entryNode = nList.item(i);
+
+                if (entryNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element entryElement = (Element) entryNode;
+                    int year = Integer.parseInt(entryElement.getElementsByTagName("year").item(0).getTextContent());
+                    int number = Integer.parseInt(entryElement.getElementsByTagName("val").item(0).getTextContent());
+
+                    graduates.add(new Graduates(number, year));
+                }
+            }
+
+            File jsonFile = pathJSON.toFile();
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jsonFile);
+
+            for (JsonNode node : root) {
+                int year = Integer.parseInt(node.get("date").asText());
+                float rate = (float) node.get("value").asDouble();
+
+                inflations.add(new Inflation(rate, year));
+            }
+
+            init_database_with_data(graduates, inflations);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void init_database_with_data(List<Graduates> graduatesList, List<Inflation> inflationList) {
