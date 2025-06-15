@@ -27,7 +27,7 @@ public class Graduates {
         this.year = year;
     }
 
-    public float getNumber() {
+    public int getNumber() {
         return number;
     }
 
