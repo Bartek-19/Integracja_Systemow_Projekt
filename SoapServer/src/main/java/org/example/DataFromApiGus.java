@@ -6,11 +6,14 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 public class DataFromApiGus {
 
     private static final String API_URL = "https://bdl.stat.gov.pl/api/v1/data/by-variable/473986?unit-level=0&year=2003-2023";
+    private static File xmlFile;
 
     public String fetchDataAndConvertToFilteredJson() {
         try {
@@ -80,7 +83,16 @@ public class DataFromApiGus {
         }
     }
     public void saveFileXml(String data){
-        try (FileWriter writer = new FileWriter("GusData.xml")) {
+        final Path pathXML = Paths.get("C:","Users","barte","OneDrive","Pulpit","VI semestr","6.SE.2 Integracja systemów","Laboratorium","Integracja_Systemow_Projekt","DataFiles","GusData.xml");
+        final Path dockerPathXML = Paths.get("/app", "DataFiles", "GusData.xml");
+
+        if(Main.isDockerPath()) {
+            xmlFile = dockerPathXML.toFile();
+        } else {
+            xmlFile = pathXML.toFile();
+        }
+
+        try (FileWriter writer = new FileWriter(xmlFile)) {
             writer.write(data);
             System.out.println("Plik GusData.xml został zapisany.");
         } catch (IOException e) {

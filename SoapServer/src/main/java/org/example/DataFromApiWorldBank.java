@@ -6,10 +6,14 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 public class DataFromApiWorldBank {
     private static final String API_URL = "https://api.worldbank.org/v2/country/PL/indicator/FP.CPI.TOTL.ZG?format=json&date=2003:2023";
+    private static File jsonFile;
+
     public String fetchDataAndConvertToFilteredJson() {
         try {
             URL url = new URL(API_URL);
@@ -57,7 +61,16 @@ public class DataFromApiWorldBank {
         }
     }
     public void saveFileJSON(String data){
-        try (FileWriter writer = new FileWriter("WorldBankData.json")) {
+        final Path pathJSON = Paths.get("C:","Users","barte","OneDrive","Pulpit","VI semestr","6.SE.2 Integracja systemów","Laboratorium","Integracja_Systemow_Projekt","DataFiles","WorldBankData.json");
+        final Path dockerPathJSON = Paths.get("/app", "DataFiles", "WorldBankData.json");
+
+        if(Main.isDockerPath()) {
+            jsonFile = dockerPathJSON.toFile();
+        } else {
+            jsonFile = pathJSON.toFile();
+        }
+        
+        try (FileWriter writer = new FileWriter(jsonFile)) {
             writer.write(data);
             System.out.println("Plik WorldBankData.json został zapisany.");
         } catch (IOException e) {
