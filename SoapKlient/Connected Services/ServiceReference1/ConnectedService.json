@@ -1,7 +1,7 @@
 {
   "ExtendedData": {
     "inputs": [
-      "http://localhost:7777/soap?wsdl"
+      "http://soapserver:7777/soap?wsdl" 
     ],
     "collectionTypes": [
       "System.Array",

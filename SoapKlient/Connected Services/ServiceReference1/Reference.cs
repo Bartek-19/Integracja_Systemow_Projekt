@@ -184,7 +184,9 @@ namespace ServiceReference1
         {
             if ((endpointConfiguration == EndpointConfiguration.WSPort))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:7777/soap");
+                return new System.ServiceModel.EndpointAddress("http://soapserver:7777/soap");
+                // return new System.ServiceModel.EndpointAddress("http://localhost:7777/soap"); 
+                // wymaga też zmiany w ConnectedService.json
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
