@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,18 +30,37 @@ import java.util.List;
 //  Dodatkowo, w pliku pom.xml znajdują się zależności
 //  odpowiadające za rozszerzenia konieczne do działania programu.
 //
-//  Program testowany manualnie - działa prawidłowo
+//  ORM testowany manualnie - działa prawidłowo
 //
 
 public class Main {
+
+    private static File xmlFile;
+    private static File jsonFile;
+
+    public static boolean isDockerPath(){
+        Path dockerPath = Paths.get("/app", "DataFiles");
+        return (Files.exists(dockerPath) && Files.isDirectory(dockerPath));
+    }
+    
     public static void main(String[] args) {
         final Path pathXML = Paths.get("C:","Users","barte","OneDrive","Pulpit","VI semestr","6.SE.2 Integracja systemów","Laboratorium","Integracja_Systemow_Projekt","DataFiles","GusData.xml");
         final Path pathJSON = Paths.get("C:","Users","barte","OneDrive","Pulpit","VI semestr","6.SE.2 Integracja systemów","Laboratorium","Integracja_Systemow_Projekt","DataFiles","WorldBankData.json");
+        final Path dockerPathXML = Paths.get("/app", "DataFiles", "GusData.xml");
+        final Path dockerPathJSON = Paths.get("/app", "DataFiles", "WorldBankData.json");
         List<Graduates> graduates = new ArrayList<>();
         List<Inflation> inflations = new ArrayList<>();
+        
 
         try {
-            File xmlFile = pathXML.toFile();
+            if(isDockerPath()) {
+                xmlFile = dockerPathXML.toFile();
+                jsonFile = dockerPathJSON.toFile();
+            } else {
+                xmlFile = pathXML.toFile();
+                jsonFile = pathJSON.toFile();
+            }
+            
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
@@ -61,8 +81,6 @@ public class Main {
                 }
             }
 
-            File jsonFile = pathJSON.toFile();
-
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(jsonFile);
 
@@ -74,7 +92,6 @@ public class Main {
             }
 
             init_database_with_data(graduates, inflations);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

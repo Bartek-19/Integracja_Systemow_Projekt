@@ -1,6 +1,7 @@
 package com.lg;
 
 import javax.persistence.*;
+//import jakarta.persistence.*;
 
 @Entity
 @Table(name="inflation", indexes = {@Index(name = "INFLATION_YEAR_INDEX", columnList = "year")})
@@ -11,6 +12,8 @@ public class Inflation {
 
     @Column(nullable = false)
     private float rate;
+
+    //public Inflation() {}
 
     public Inflation(float rate, int year) {
         this.rate = rate;

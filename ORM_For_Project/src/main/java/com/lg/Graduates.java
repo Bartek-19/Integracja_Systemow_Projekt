@@ -1,6 +1,7 @@
 package com.lg;
 
 import javax.persistence.*;
+//import jakarta.persistence.*;
 
 @Entity
 @Table(name="graduates", indexes = {@Index(name = "GRADUATES_YEAR_INDEX", columnList = "year")})
@@ -11,6 +12,8 @@ public class Graduates {
 
     @Column(nullable = false)
     private int number;
+
+    //public Graduates() {}
 
     public Graduates(int number, int year) {
         this.number = number;
