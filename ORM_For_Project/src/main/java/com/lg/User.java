@@ -14,7 +14,13 @@ public class User {
     private String login;
     @Column(nullable = false)
     private String password;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "roles_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "roles_id"})
+    )
     private final List<Role> roles = new ArrayList<>();
 
     public User(String login, String password) {
