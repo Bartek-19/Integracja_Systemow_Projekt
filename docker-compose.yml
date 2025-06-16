@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  client:
+    container_name: client
+    build: 
+      context: .
+      dockerfile: DockerfileClient
+    ports:
+      - "3000:3000"     # porty mogą być dostosowane do konfiguracji Twojej aplikacji
+    environment:
+      - REACT_APP_API_URL=http://restserver:8080
+    depends_on:
+      - restserver
+    networks:
+      - netIntegracja
+
+  orm:
+    container_name: orm_for_project
+    build: 
+      context: .
+      dockerfile: DockerfileORM
+    volumes:
+      - ./DataFiles:/app/DataFiles  # zakładamy, że aplikacja oczekuje danych w /app/DataFiles
+    depends_on:
+      - mysql
+      - soapserver
+    networks:
+      - netIntegracja
+
+  restserver:
+    container_name: restserver
+    build: 
+      context: .
+      dockerfile: DockerfileREST
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./DataFiles:/app/DataFiles
+    depends_on:
+      - mysql
+      - orm_for_project
+    networks:
+      - netIntegracja
+
+  soapserver:
+    container_name: soapserver
+    build: 
+      context: .
+      dockerfile: DockerfileSOAPServer
+    ports:
+      - "7777:7777"
+    volumes:
+      - ./DataFiles:/app/DataFiles
+    networks:
+      - netIntegracja
+
+  soapklient:
+    container_name: soapklient
+    build: 
+      context: .
+      dockerfile: DockerfileSOAPKlient
+    ports:
+      - "7778:443"
+    volumes:
+      - ./DataFiles:/app/DataFiles
+    depends_on:
+      - soapserver
+    networks:
+      - netIntegracja
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      # Inicjalizacja bazy danymi z pliku init.sql znajdującego się w folderze DataFiles
+      - ./DataFiles/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # Oddzielny wolumen dla danych MySQL
+      - mysql_data:/var/lib/mysql
+    networks:
+      - netIntegracja
+
+volumes:
+  mysql_data:
+
+networks:
+  netIntegracja:

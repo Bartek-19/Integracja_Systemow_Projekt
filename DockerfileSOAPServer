@@ -1,0 +1,16 @@
+# Dockerfile dla SoapServer
+
+# Stage 1: Budowa aplikacji
+FROM maven:3.8.6-openjdk-11 AS build
+WORKDIR /app
+COPY /SoapServer/pom.xml .
+COPY /SoapServer/src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Utworzenie obrazu uruchomieniowego
+FROM openjdk:11-jre-slim
+WORKDIR /app
+# Zakładamy, że wynikowy plik JAR nazywa się SoapServer.jar – dostosuj nazwę do projektu
+COPY --from=build /app/target/SoapServer.jar .
+EXPOSE 7777
+CMD ["java", "-jar", "SoapServer.jar"]

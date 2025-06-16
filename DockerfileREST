@@ -1,0 +1,25 @@
+# Dockerfile dla RestServer
+
+# Stage 1: Budowa aplikacji Spring Boot
+FROM maven:3.8.6-openjdk-11 AS build
+WORKDIR /app
+COPY /RestServer/pom.xml .
+COPY /RestServer/src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Utworzenie obrazu uruchomieniowego
+FROM openjdk:11-jre-slim
+WORKDIR /app
+
+# Kopiujemy JAR aplikacji – dostosuj nazwę pliku, np. RestServer.jar
+COPY --from=build /app/target/RestServer.jar .
+# Kopiujemy plik main.py, który będzie wykorzystywany przez aplikację
+COPY /RestServer/main.py .
+
+# Instalacja Pythona (w obrazie slim nie jest domyślnie dostępny)
+RUN apt-get update && apt-get install -y python3 && rm -rf /var/lib/apt/lists/*
+
+RUN chmod +x main.py
+
+EXPOSE 8080
+CMD ["java", "-jar", "ORM_For_Project.jar"]

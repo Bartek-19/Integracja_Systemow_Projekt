@@ -1,0 +1,16 @@
+# Dockerfile dla ORM_For_Project
+
+# Stage 1: Budowa aplikacji
+FROM maven:3.8.6-openjdk-11 AS build
+WORKDIR /app
+COPY /ORM_For_Project/pom.xml .
+COPY /ORM_For_Project/src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Uruchomienie aplikacji
+FROM openjdk:11-jre-slim
+WORKDIR /app
+# Zakładamy, że wynikowy JAR nazywa się ORM_For_Project.jar – dostosuj do własnego przypadku
+COPY --from=build /app/target/ORM_For_Project.jar .
+
+CMD ["java", "-jar", "ORM_For_Project.jar"]
